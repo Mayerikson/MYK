@@ -41,6 +41,7 @@ if banda_extra:
 if bandas_selecionadas:
     resultados = df[df['Antecedent'].isin(bandas_selecionadas) | df['Consequent'].isin(bandas_selecionadas)]
     st.write('Bandas Selecionadas e suas Classificações de Confiança:')
-    st.dataframe(resultados[['Antecedent', 'Consequent', '% de Confiança', 'Classificação']])
+    # Ocultar a coluna de índices
+    st.dataframe(resultados[['Antecedent', 'Consequent', '% de Confiança', 'Classificação']].style.hide_index())
 else:
     st.write('Por favor, selecione pelo menos uma banda de cada classificação.')
