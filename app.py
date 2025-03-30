@@ -28,9 +28,9 @@ st.write("""
     - **Baixa:** % de Confiança < 35
 
     **Regras de Seleção:**
-    - Selecione uma banda de classificação Alta.
-    - Selecione até duas bandas de classificação Média ou Baixa.
-    - Não é permitido selecionar mais de uma banda de classificação Alta.
+    - Selecione **uma banda de classificação Alta**.
+    - Selecione **até duas bandas de classificação Média ou Baixa**.
+    - O total de bandas selecionadas não pode exceder **4**.
 """)
 
 # Separar bandas por classificação
@@ -40,26 +40,30 @@ bandas_baixas = df[df['Classificação'] == 'Baixa'][['Antecedent', 'Consequent'
 
 # Seleção de bandas pelo usuário
 st.write("Selecione as bandas conforme as regras acima:")
+
+# Banda de classificação Alta (obrigatória)
 banda_alta = st.selectbox('Selecione uma banda de classificação Alta:', bandas_altas)
 
 # Listas para armazenar as bandas selecionadas
-bandas_selecionadas = [banda_alta]
+bandas_selecionadas = [banda_alta] if banda_alta else []
 
-# Seleção de bandas de classificação Média
-banda_media1 = st.selectbox('Selecione uma banda de classificação Média (opcional):', bandas_medias, index=None, placeholder="Selecione uma banda de classificação Média...")
-if banda_media1:
-    bandas_selecionadas.append(banda_media1)
-    banda_media2 = st.selectbox('Selecione outra banda de classificação Média (opcional):', bandas_medias, index=None, placeholder="Selecione outra banda de classificação Média...")
-    if banda_media2:
-        bandas_selecionadas.append(banda_media2)
+# Contador para limitar o número de bandas adicionais
+max_bandas_adicionais = 2  # Máximo de 2 bandas adicionais (Média ou Baixa)
 
-# Seleção de bandas de classificação Baixa
-banda_baixa1 = st.selectbox('Selecione uma banda de classificação Baixa (opcional):', bandas_baixas, index=None, placeholder="Selecione uma banda de classificação Baixa...")
-if banda_baixa1:
-    bandas_selecionadas.append(banda_baixa1)
-    banda_baixa2 = st.selectbox('Selecione outra banda de classificação Baixa (opcional):', bandas_baixas, index=None, placeholder="Selecione outra banda de classificação Baixa...")
-    if banda_baixa2:
-        bandas_selecionadas.append(banda_baixa2)
+if len(bandas_selecionadas) > 0:  # Apenas se uma banda Alta foi selecionada
+    st.write(f"Você pode selecionar até {max_bandas_adicionais} bandas de classificação Média ou Baixa:")
+    
+    # Combinação de bandas Médias e Baixas
+    todas_bandas_medias_baixas = list(set(bandas_medias).union(set(bandas_baixas)))
+    
+    for i in range(max_bandas_adicionais):
+        placeholder_text = f"Selecione uma banda adicional ({i+1}/{max_bandas_adicionais}):"
+        banda_adicional = st.selectbox(placeholder_text, todas_bandas_medias_baixas, index=None, key=f"banda_{i}")
+        
+        if banda_adicional:
+            bandas_selecionadas.append(banda_adicional)
+        else:
+            break  # Para de solicitar seleções se o usuário não escolher mais bandas
 
 # Exibir resultados
 if bandas_selecionadas:
