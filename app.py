@@ -29,7 +29,8 @@ st.write("""
 
     **Regras de Seleção:**
     - Selecione **uma banda de classificação Alta**.
-    - Selecione **até duas bandas de classificação Média ou Baixa**.
+    - Selecione **até duas bandas de classificação Média**.
+    - Selecione **até três bandas de classificação Baixa**.
     - O total de bandas selecionadas não pode exceder **4**.
 """)
 
@@ -47,21 +48,43 @@ banda_alta = st.selectbox('Selecione uma banda de classificação Alta:', bandas
 # Listas para armazenar as bandas selecionadas
 bandas_selecionadas = [banda_alta] if banda_alta else []
 
-# Contador para limitar o número de bandas adicionais
-max_bandas_adicionais = 2  # Máximo de 2 bandas adicionais (Média ou Baixa)
+# Contadores para limitar o número de bandas adicionais
+max_bandas_adicionais = 3  # Máximo de 3 bandas adicionais (Média ou Baixa)
+max_bandas_medias = 2      # Máximo de 2 bandas Média
+max_bandas_baixas = 3      # Máximo de 3 bandas Baixa
 
 if len(bandas_selecionadas) > 0:  # Apenas se uma banda Alta foi selecionada
-    st.write(f"Você pode selecionar até {max_bandas_adicionais} bandas de classificação Média ou Baixa:")
+    st.write(f"Você pode selecionar até {max_bandas_adicionais} bandas adicionais (Média ou Baixa):")
     
-    # Combinação de bandas Médias e Baixas
-    todas_bandas_medias_baixas = list(set(bandas_medias).union(set(bandas_baixas)))
-    
+    # Contadores para controlar o número de bandas Média e Baixa selecionadas
+    num_bandas_medias = 0
+    num_bandas_baixas = 0
+
     for i in range(max_bandas_adicionais):
+        # Verificar quantas bandas ainda podem ser selecionadas
+        restantes = max_bandas_adicionais - (num_bandas_medias + num_bandas_baixas)
+        if restantes <= 0:
+            break  # Limite de bandas adicionais atingido
+
         placeholder_text = f"Selecione uma banda adicional ({i+1}/{max_bandas_adicionais}):"
-        banda_adicional = st.selectbox(placeholder_text, todas_bandas_medias_baixas, index=None, key=f"banda_{i}")
+        
+        # Opções disponíveis baseadas nas regras
+        opcoes_disponiveis = []
+        if num_bandas_medias < max_bandas_medias:
+            opcoes_disponiveis.extend([f"Média: {banda}" for banda in bandas_medias])
+        if num_bandas_baixas < max_bandas_baixas:
+            opcoes_disponiveis.extend([f"Baixa: {banda}" for banda in bandas_baixas])
+
+        # Selecionar banda adicional
+        banda_adicional = st.selectbox(placeholder_text, [""] + opcoes_disponiveis, key=f"banda_{i}")
         
         if banda_adicional:
-            bandas_selecionadas.append(banda_adicional)
+            tipo, banda = banda_adicional.split(": ", 1)
+            if tipo == "Média":
+                num_bandas_medias += 1
+            elif tipo == "Baixa":
+                num_bandas_baixas += 1
+            bandas_selecionadas.append(banda)
         else:
             break  # Para de solicitar seleções se o usuário não escolher mais bandas
 
