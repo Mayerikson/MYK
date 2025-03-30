@@ -41,7 +41,7 @@ if banda_extra:
 if bandas_selecionadas:
     resultados = df[df['Antecedent'].isin(bandas_selecionadas) | df['Consequent'].isin(bandas_selecionadas)]
     st.write('Bandas Selecionadas e suas Classificações de Confiança:')
-    # Ocultar a coluna de índices
-    st.dataframe(resultados[['Antecedent', 'Consequent', '% de Confiança', 'Classificação']].style.hide_index())
+    # Converter para HTML sem índices
+    st.markdown(resultados[['Antecedent', 'Consequent', '% de Confiança', 'Classificação']].to_html(index=False), unsafe_allow_html=True)
 else:
     st.write('Por favor, selecione pelo menos uma banda de cada classificação.')
