@@ -91,7 +91,7 @@ if len(bandas_selecionadas) > 0:  # Apenas se uma banda Alta foi selecionada
 # Exibir resultados
 if bandas_selecionadas:
     resultados = df[df['Antecedent'].isin(bandas_selecionadas) | df['Consequent'].isin(bandas_selecionadas)]
-    st.write('Bandas Selecionadas e suas Classificações de Confiança:')
+    st.write('**A classificação de confiança abaixo está fixada na Banda com Classificação Alta.**')
     # Converter para HTML sem índices
     st.markdown(resultados[['Antecedent', 'Consequent', '% de Confiança', 'Classificação']].to_html(index=False), unsafe_allow_html=True)
 else:
