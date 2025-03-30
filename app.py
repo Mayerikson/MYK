@@ -20,9 +20,22 @@ df['Classificação'] = df['% de Confiança'].apply(classificar_confianca)
 # Interface do Streamlit
 st.title('Lineup de Bandas')
 
+# Separar bandas por classificação
+bandas_altas = df[df['Classificação'] == 'Alta'][['Antecedent', 'Consequent']].stack().unique()
+bandas_medias = df[df['Classificação'] == 'Média'][['Antecedent', 'Consequent']].stack().unique()
+bandas_baixas = df[df['Classificação'] == 'Baixa'][['Antecedent', 'Consequent']].stack().unique()
+
 # Seleção de bandas pelo usuário
-bandas_disponiveis = df[['Antecedent', 'Consequent']].stack().unique()
-bandas_selecionadas = st.multiselect('Selecione até 3 bandas:', bandas_disponiveis)
+st.write("Selecione uma banda de cada classificação:")
+banda_alta = st.selectbox('Selecione uma banda de classificação Alta:', bandas_altas)
+banda_media = st.selectbox('Selecione uma banda de classificação Média:', bandas_medias)
+banda_baixa = st.selectbox('Selecione uma banda de classificação Baixa:', bandas_baixas)
+banda_extra = st.selectbox('Selecione uma banda adicional (opcional):', df[['Antecedent', 'Consequent']].stack().unique(), index=None, placeholder="Selecione uma banda adicional...")
+
+# Lista de bandas selecionadas
+bandas_selecionadas = [banda_alta, banda_media, banda_baixa]
+if banda_extra:
+    bandas_selecionadas.append(banda_extra)
 
 # Exibir resultados
 if bandas_selecionadas:
@@ -30,4 +43,4 @@ if bandas_selecionadas:
     st.write('Bandas Selecionadas e suas Classificações de Confiança:')
     st.dataframe(resultados[['Antecedent', 'Consequent', '% de Confiança', 'Classificação']])
 else:
-    st.write('Por favor, selecione até 3 bandas.')
+    st.write('Por favor, selecione pelo menos uma banda de cada classificação.')
