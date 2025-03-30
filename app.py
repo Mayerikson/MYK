@@ -20,22 +20,46 @@ df['Classificação'] = df['% de Confiança'].apply(classificar_confianca)
 # Interface do Streamlit
 st.title('Lineup de Bandas')
 
+# Explicação das classificações
+st.write("""
+    **Classificações de Confiança:**
+    - **Alta:** % de Confiança ≥ 70
+    - **Média:** 35 ≤ % de Confiança < 70
+    - **Baixa:** % de Confiança < 35
+
+    **Regras de Seleção:**
+    - Selecione uma banda de classificação Alta.
+    - Selecione até duas bandas de classificação Média ou Baixa.
+    - Não é permitido selecionar mais de uma banda de classificação Alta.
+""")
+
 # Separar bandas por classificação
 bandas_altas = df[df['Classificação'] == 'Alta'][['Antecedent', 'Consequent']].stack().unique()
 bandas_medias = df[df['Classificação'] == 'Média'][['Antecedent', 'Consequent']].stack().unique()
 bandas_baixas = df[df['Classificação'] == 'Baixa'][['Antecedent', 'Consequent']].stack().unique()
 
 # Seleção de bandas pelo usuário
-st.write("Selecione uma banda de cada classificação:")
+st.write("Selecione as bandas conforme as regras acima:")
 banda_alta = st.selectbox('Selecione uma banda de classificação Alta:', bandas_altas)
-banda_media = st.selectbox('Selecione uma banda de classificação Média:', bandas_medias)
-banda_baixa = st.selectbox('Selecione uma banda de classificação Baixa:', bandas_baixas)
-banda_extra = st.selectbox('Selecione uma banda adicional (opcional):', df[['Antecedent', 'Consequent']].stack().unique(), index=None, placeholder="Selecione uma banda adicional...")
 
-# Lista de bandas selecionadas
-bandas_selecionadas = [banda_alta, banda_media, banda_baixa]
-if banda_extra:
-    bandas_selecionadas.append(banda_extra)
+# Listas para armazenar as bandas selecionadas
+bandas_selecionadas = [banda_alta]
+
+# Seleção de bandas de classificação Média
+banda_media1 = st.selectbox('Selecione uma banda de classificação Média (opcional):', bandas_medias, index=None, placeholder="Selecione uma banda de classificação Média...")
+if banda_media1:
+    bandas_selecionadas.append(banda_media1)
+    banda_media2 = st.selectbox('Selecione outra banda de classificação Média (opcional):', bandas_medias, index=None, placeholder="Selecione outra banda de classificação Média...")
+    if banda_media2:
+        bandas_selecionadas.append(banda_media2)
+
+# Seleção de bandas de classificação Baixa
+banda_baixa1 = st.selectbox('Selecione uma banda de classificação Baixa (opcional):', bandas_baixas, index=None, placeholder="Selecione uma banda de classificação Baixa...")
+if banda_baixa1:
+    bandas_selecionadas.append(banda_baixa1)
+    banda_baixa2 = st.selectbox('Selecione outra banda de classificação Baixa (opcional):', bandas_baixas, index=None, placeholder="Selecione outra banda de classificação Baixa...")
+    if banda_baixa2:
+        bandas_selecionadas.append(banda_baixa2)
 
 # Exibir resultados
 if bandas_selecionadas:
@@ -44,4 +68,4 @@ if bandas_selecionadas:
     # Converter para HTML sem índices
     st.markdown(resultados[['Antecedent', 'Consequent', '% de Confiança', 'Classificação']].to_html(index=False), unsafe_allow_html=True)
 else:
-    st.write('Por favor, selecione pelo menos uma banda de cada classificação.')
+    st.write('Por favor, selecione pelo menos uma banda de classificação Alta.')
